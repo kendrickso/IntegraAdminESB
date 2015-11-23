@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="TaskService" startOnLoad="true" trace="disable"
+  transports="http https" xmlns="http://ws.apache.org/ns/synapse">
+  <target>
+    <inSequence>
+      <log level="full"/>
+      <property expression="get-property('Action')" name="soapAction"
+        scope="default" type="STRING"/>
+      <switch source="get-property('soapAction')">
+        <case regex=".*/getTasks">
+          <log level="custom">
+            <property name="case_inSequence" value="getTasks"/>
+          </log>
+          <property expression="//m:getTasks/Filter/status/text()"
+            name="uri.var.status" scope="default" type="STRING" xmlns:m="http://www.energy.com.ph/TaskService/"/>
+          <property expression="//m:getTasks/Filter/projectId/text()"
+            name="uri.var.projectId" scope="default" type="STRING" xmlns:m="http://www.energy.com.ph/TaskService/"/>
+          <property expression="//m:getTasks/Filter/parentId/text()"
+            name="uri.var.parentId" scope="default" type="STRING" xmlns:m="http://www.energy.com.ph/TaskService/"/>
+          <property expression="//m:getTasks/Filter/campaignId/text()"
+            name="uri.var.campaignId" scope="default" type="STRING" xmlns:m="http://www.energy.com.ph/TaskService/"/>
+          <log level="custom">
+            <property expression="get-property('uri.var.status')" name="status"/>
+            <property expression="get-property('uri.var.projectId')" name="projectId"/>
+            <property expression="get-property('uri.var.parentId')" name="parentId"/>
+            <property expression="get-property('uri.var.campaignId')" name="campaignId"/>
+          </log>
+          <send>
+            <endpoint>
+              <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/v1/tasks?filter[status]={uri.var.status}&amp;filter[projectId]={uri.var.projectId}&amp;filter[parentId]={uri.var.parentId}&amp;filter[campaignId]={uri.var.campaignId}"/>
+            </endpoint>
+          </send>
+        </case>
+        <default>
+          <log level="custom">
+            <property name="case_inSequence" value="default"/>
+          </log>
+          <drop/>
+        </default>
+      </switch>
+    </inSequence>
+    <outSequence>
+      <log level="full"/>
+      <property name="messageType" scope="axis2" type="STRING" value="application/xml"/>
+      <switch source="get-property('soapAction')">
+        <case regex=".*/getTasks">
+          <log level="custom">
+            <property name="case_outSequence" value="getTasks"/>
+          </log>
+          <xslt key="json2soap_transform">
+            <property name="rootNodeName" value="m:getTasksResponse"/>
+            <property name="rootNodeNamespace" value="http://www.energy.com.ph/TaskService/"/>
+          </xslt>
+          <send/>
+        </case>
+        <default>
+          <log level="custom">
+            <property name="case_outSequence" value="default"/>
+          </log>
+          <drop/>
+        </default>
+      </switch>
+    </outSequence>
+    <faultSequence/>
+  </target>
+  <publishWSDL>
+    <wsdl:definitions name="TaskService"
+      targetNamespace="http://www.energy.com.ph/TaskService/"
+      xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+      xmlns:tns="http://www.energy.com.ph/TaskService/"
+      xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <wsdl:types>
+        <xsd:schema targetNamespace="http://www.energy.com.ph/TaskService/">
+          <xsd:element name="getTasks">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="Filter" type="tns:FilterType"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="getTasksResponse">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="out" type="xsd:string"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:complexType name="FilterType">
+            <xsd:sequence>
+              <xsd:element maxOccurs="1" minOccurs="0" name="status" type="xsd:string"/>
+              <xsd:element maxOccurs="1" minOccurs="0" name="projectId" type="xsd:long"/>
+              <xsd:element maxOccurs="1" minOccurs="0" name="parentId" type="xsd:long"/>
+              <xsd:element maxOccurs="1" minOccurs="0" name="campaignId" type="xsd:long"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:schema>
+      </wsdl:types>
+      <wsdl:message name="getTasksRequest">
+        <wsdl:part element="tns:getTasks" name="parameters"/>
+      </wsdl:message>
+      <wsdl:message name="getTasksResponse">
+        <wsdl:part element="tns:getTasksResponse" name="parameters"/>
+      </wsdl:message>
+      <wsdl:portType name="TaskService">
+        <wsdl:operation name="getTasks">
+          <wsdl:input message="tns:getTasksRequest"/>
+          <wsdl:output message="tns:getTasksResponse"/>
+        </wsdl:operation>
+      </wsdl:portType>
+      <wsdl:binding name="TaskServiceSOAP" type="tns:TaskService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="getTasks">
+          <soap:operation soapAction="http://www.energy.com.ph/TaskService/getTasks"/>
+          <wsdl:input>
+            <soap:body use="literal"/>
+          </wsdl:input>
+          <wsdl:output>
+            <soap:body use="literal"/>
+          </wsdl:output>
+        </wsdl:operation>
+      </wsdl:binding>
+      <wsdl:service name="TaskService">
+        <wsdl:port binding="tns:TaskServiceSOAP" name="TaskServiceSOAP">
+          <soap:address location="http://www.example.org/"/>
+        </wsdl:port>
+      </wsdl:service>
+    </wsdl:definitions>
+  </publishWSDL>
+</proxy>

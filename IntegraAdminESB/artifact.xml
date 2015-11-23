@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="TaskService" groupId="com.energy.IntegraAdminESB.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/TaskService.xml</file>
+    </artifact>
+    <artifact name="json2soap_transform" groupId="com.energy.IntegraAdminESB.local-entry" version="1.0.0" type="synapse/local-entry" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/local-entries/json2soap_transform.xml</file>
+    </artifact>
+</artifacts>

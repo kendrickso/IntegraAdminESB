@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<localEntry key="json2soap_transform" xmlns="http://ws.apache.org/ns/synapse">
+  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output indent="yes" method="xml" omit-xml-declaration="yes"/>
+    <xsl:param name="rootNodeName"/>
+    <xsl:param name="rootNodeNamespace"/>
+    <xsl:template match="/">
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Body>
+          <xsl:element name="{$rootNodeName}" namespace="{$rootNodeNamespace}">
+            <xsl:copy-of select="jsonObject/*"/>
+          </xsl:element>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    </xsl:template>
+  </xsl:stylesheet>
+</localEntry>

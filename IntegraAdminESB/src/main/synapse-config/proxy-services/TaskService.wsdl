@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.energy.com.ph/TaskService/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="TaskService" targetNamespace="http://www.energy.com.ph/TaskService/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://www.energy.com.ph/TaskService/">
+      <xsd:element name="getTasks">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="Filter" type="tns:FilterType" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getTasksResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="out" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    
+      <xsd:complexType name="FilterType">
+      	<xsd:sequence>
+      		<xsd:element name="status" type="xsd:string" maxOccurs="1" minOccurs="0"></xsd:element>
+      		<xsd:element name="projectId" type="xsd:long" maxOccurs="1" minOccurs="0"></xsd:element>
+      		<xsd:element name="parentId" type="xsd:long" maxOccurs="1" minOccurs="0"></xsd:element>
+      		<xsd:element name="campaignId" type="xsd:long" maxOccurs="1" minOccurs="0"></xsd:element>
+      	</xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="getTasksRequest">
+    <wsdl:part element="tns:getTasks" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="getTasksResponse">
+    <wsdl:part element="tns:getTasksResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:portType name="TaskService">
+    <wsdl:operation name="getTasks">
+      <wsdl:input message="tns:getTasksRequest"/>
+      <wsdl:output message="tns:getTasksResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TaskServiceSOAP" type="tns:TaskService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getTasks">
+      <soap:operation soapAction="http://www.energy.com.ph/TaskService/getTasks"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TaskService">
+    <wsdl:port binding="tns:TaskServiceSOAP" name="TaskServiceSOAP">
+      <soap:address location="http://www.example.org/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
