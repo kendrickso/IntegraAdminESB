@@ -3,6 +3,9 @@
   transports="http https" xmlns="http://ws.apache.org/ns/synapse">
   <target>
     <inSequence>
+      <log level="custom">
+        <property name="mark" value="********** START IN SEQUENCE **********"/>
+      </log>
       <log level="full"/>
       <property expression="get-property('Action')" name="soapAction"
         scope="default" type="STRING"/>
@@ -25,11 +28,14 @@
             <property expression="get-property('uri.var.parentId')" name="parentId"/>
             <property expression="get-property('uri.var.campaignId')" name="campaignId"/>
           </log>
-          <send>
-            <endpoint>
-              <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/v1/tasks?filter[status]={uri.var.status}&amp;filter[projectId]={uri.var.projectId}&amp;filter[parentId]={uri.var.parentId}&amp;filter[campaignId]={uri.var.campaignId}"/>
-            </endpoint>
-          </send>
+          <send/>
+        </case>
+        <case regex=".*/createTask">
+          <log level="custom">
+            <property name="case_inSequence" value="createTask"/>
+          </log>
+          <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+          <send/>
         </case>
         <default>
           <log level="custom">
@@ -38,8 +44,14 @@
           <drop/>
         </default>
       </switch>
+      <log level="custom">
+        <property name="mark" value="********** END IN SEQUENCE **********"/>
+      </log>
     </inSequence>
     <outSequence>
+      <log level="custom">
+        <property name="mark" value="********** START OUT SEQUENCE **********"/>
+      </log>
       <log level="full"/>
       <property name="messageType" scope="axis2" type="STRING" value="application/xml"/>
       <switch source="get-property('soapAction')">
@@ -51,6 +63,18 @@
             <property name="rootNodeName" value="m:getTasksResponse"/>
             <property name="rootNodeNamespace" value="http://www.energy.com.ph/TaskService/"/>
           </xslt>
+          <log level="full"/>
+          <send/>
+        </case>
+        <case regex=".*/createTask">
+          <log level="custom">
+            <property name="case_outSequence" value="createTask"/>
+          </log>
+          <xslt key="json2soap_transform">
+            <property name="rootNodeName" value="m:createTaskResponse"/>
+            <property name="rootNodeNamespace" value="http://www.energy.com.ph/TaskService/"/>
+          </xslt>
+          <log level="full"/>
           <send/>
         </case>
         <default>
@@ -60,8 +84,22 @@
           <drop/>
         </default>
       </switch>
+      <log level="custom">
+        <property name="mark" value="********** END OUT SEQUENCE **********"/>
+      </log>
     </outSequence>
-    <faultSequence/>
+    <faultSequence>
+      <log level="custom">
+        <property name="mark" value="********** START FAULT SEQUENCE **********"/>
+      </log>
+      <log level="custom">
+        <property expression="get-property('ERROR_CODE')" name="errorCode"/>
+        <property expression="get-property('ERROR_MESSAGE')" name="errorMessage"/>
+      </log>
+      <log level="custom">
+        <property name="mark" value="********** END FAULT SEQUENCE **********"/>
+      </log>
+    </faultSequence>
   </target>
   <publishWSDL>
     <wsdl:definitions name="TaskService"
@@ -93,6 +131,20 @@
               <xsd:element maxOccurs="1" minOccurs="0" name="campaignId" type="xsd:long"/>
             </xsd:sequence>
           </xsd:complexType>
+          <xsd:element name="createTask">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="in" type="xsd:string"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="createTaskResponse">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="out" type="xsd:string"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
         </xsd:schema>
       </wsdl:types>
       <wsdl:message name="getTasksRequest">
@@ -101,16 +153,35 @@
       <wsdl:message name="getTasksResponse">
         <wsdl:part element="tns:getTasksResponse" name="parameters"/>
       </wsdl:message>
+      <wsdl:message name="createTaskRequest">
+        <wsdl:part element="tns:createTask" name="parameters"/>
+      </wsdl:message>
+      <wsdl:message name="createTaskResponse">
+        <wsdl:part element="tns:createTaskResponse" name="parameters"/>
+      </wsdl:message>
       <wsdl:portType name="TaskService">
         <wsdl:operation name="getTasks">
           <wsdl:input message="tns:getTasksRequest"/>
           <wsdl:output message="tns:getTasksResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="createTask">
+          <wsdl:input message="tns:createTaskRequest"/>
+          <wsdl:output message="tns:createTaskResponse"/>
         </wsdl:operation>
       </wsdl:portType>
       <wsdl:binding name="TaskServiceSOAP" type="tns:TaskService">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
         <wsdl:operation name="getTasks">
           <soap:operation soapAction="http://www.energy.com.ph/TaskService/getTasks"/>
+          <wsdl:input>
+            <soap:body use="literal"/>
+          </wsdl:input>
+          <wsdl:output>
+            <soap:body use="literal"/>
+          </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="createTask">
+          <soap:operation soapAction="http://www.energy.com.ph/TaskService/createTask"/>
           <wsdl:input>
             <soap:body use="literal"/>
           </wsdl:input>
