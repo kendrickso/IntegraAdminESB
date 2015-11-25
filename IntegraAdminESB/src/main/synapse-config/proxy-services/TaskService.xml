@@ -28,14 +28,22 @@
             <property expression="get-property('uri.var.parentId')" name="parentId"/>
             <property expression="get-property('uri.var.campaignId')" name="campaignId"/>
           </log>
-          <send/>
+          <send>
+            <endpoint>
+              <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/json/tasks?filter[status]={uri.var.status}&amp;filter[projectId]={uri.var.projectId}&amp;filter[parentId]={uri.var.parentId}&amp;filter[campaignId]={uri.var.campaignId}"/>
+            </endpoint>
+          </send>
         </case>
         <case regex=".*/createTask">
           <log level="custom">
             <property name="case_inSequence" value="createTask"/>
           </log>
           <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
-          <send/>
+          <send>
+            <endpoint>
+              <http method="post" trace="disable" uri-template="http://localhost:8080/mock-task-api/json/tasks"/>
+            </endpoint>
+          </send>
         </case>
         <default>
           <log level="custom">
@@ -95,10 +103,18 @@
       <log level="custom">
         <property expression="get-property('ERROR_CODE')" name="errorCode"/>
         <property expression="get-property('ERROR_MESSAGE')" name="errorMessage"/>
+        <property expression="get-property('ERROR_DETAIL')" name="errorDetail"/>
       </log>
+      <property name="messageType" scope="axis2" type="STRING" value="application/xml"/>
+      <makefault version="soap11">
+        <code value="soap11Env:Client" xmlns:soap11Env="http://schemas.xmlsoap.org/soap/envelope/"/>
+        <reason expression="fn:concat('[', get-property('ERROR_CODE'), '] ', get-property('ERROR_MESSAGE'))"/>
+        <detail expression="get-property('ERROR_DETAIL')"/>
+      </makefault>
       <log level="custom">
         <property name="mark" value="********** END FAULT SEQUENCE **********"/>
       </log>
+      <send/>
     </faultSequence>
   </target>
   <publishWSDL>
