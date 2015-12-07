@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/TaskService" name="TaskServiceAPI" xmlns="http://ws.apache.org/ns/synapse">
+  <resource methods="GET" protocol="http" url-mapping="/tasks">
+    <inSequence>
+      <log level="custom">
+        <property name="mark" value="********** START IN SEQUENCE **********"/>
+      </log>
+      <log level="full"/>
+      <log level="custom">
+        <property name="resource_inSequence" value="GET, /tasks"/>
+      </log>
+      <property expression="get-property('query.param.filter[status]')"
+        name="uri.var.status" scope="default" type="STRING"/>
+      <property
+        expression="get-property('query.param.filter[projectId]')"
+        name="uri.var.projectId" scope="default" type="STRING"/>
+      <property
+        expression="get-property('query.param.filter[parentId]')"
+        name="uri.var.parentId" scope="default" type="STRING"/>
+      <property
+        expression="get-property('query.param.filter[campaignId]')"
+        name="uri.var.campaignId" scope="default" type="STRING"/>
+      <log level="custom">
+        <property expression="get-property('uri.var.status')" name="status"/>
+        <property expression="get-property('uri.var.projectId')" name="projectId"/>
+        <property expression="get-property('uri.var.parentId')" name="parentId"/>
+        <property expression="get-property('uri.var.campaignId')" name="campaignId"/>
+      </log>
+      <filter regex="false" source="boolean(get-property('query.param.filter[status1]'))">
+        <then>
+          <log level="custom">
+            <property name="filter" value="inside then"/>
+          </log>
+        </then>
+        <else>
+          <log level="custom">
+            <property name="filter" value="inside else"/>
+          </log>
+        </else>
+      </filter>
+      <log level="custom">
+        <property name="mark" value="********** END IN SEQUENCE **********"/>
+      </log>
+      <send>
+        <endpoint>
+          <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/xml/tasks?filter[status]={uri.var.status}&amp;filter[projectId]={uri.var.projectId}&amp;filter[parentId]={uri.var.parentId}&amp;filter[campaignId]={uri.var.campaignId}"/>
+        </endpoint>
+      </send>
+    </inSequence>
+    <outSequence>
+      <log level="custom">
+        <property name="mark" value="********** START OUT SEQUENCE **********"/>
+      </log>
+      <log level="full"/>
+      <log level="custom">
+        <property name="mark" value="********** END OUT SEQUENCE **********"/>
+      </log>
+      <send/>
+    </outSequence>
+    <faultSequence>
+      <log level="custom">
+        <property name="mark" value="********** START FAULT SEQUENCE **********"/>
+      </log>
+      <log level="custom">
+        <property expression="get-property('ERROR_CODE')" name="errorCode"/>
+        <property expression="get-property('ERROR_MESSAGE')" name="errorMessage"/>
+        <property expression="get-property('ERROR_DETAIL')" name="errorDetail"/>
+      </log>
+      <log level="custom">
+        <property name="mark" value="********** END FAULT SEQUENCE **********"/>
+      </log>
+    </faultSequence>
+  </resource>
+  <resource methods="POST" protocol="http" url-mapping="http://localhost:8080/mock-task-api/xml/tasks">
+    <inSequence>
+      <log level="full"/>
+      <log level="custom">
+        <property name="resource_inSequence" value="POST, /tasks"/>
+      </log>
+    </inSequence>
+    <outSequence/>
+    <faultSequence/>
+  </resource>
+</api>
