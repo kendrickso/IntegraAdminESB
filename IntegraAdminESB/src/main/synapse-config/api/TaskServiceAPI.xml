@@ -26,18 +26,6 @@
         <property expression="get-property('uri.var.parentId')" name="parentId"/>
         <property expression="get-property('uri.var.campaignId')" name="campaignId"/>
       </log>
-      <filter regex="false" source="boolean(get-property('query.param.filter[status1]'))">
-        <then>
-          <log level="custom">
-            <property name="filter" value="inside then"/>
-          </log>
-        </then>
-        <else>
-          <log level="custom">
-            <property name="filter" value="inside else"/>
-          </log>
-        </else>
-      </filter>
       <log level="custom">
         <property name="mark" value="********** END IN SEQUENCE **********"/>
       </log>
@@ -71,14 +59,46 @@
       </log>
     </faultSequence>
   </resource>
-  <resource methods="POST" protocol="http" url-mapping="http://localhost:8080/mock-task-api/xml/tasks">
+  <resource methods="POST" protocol="http" url-mapping="/tasks">
     <inSequence>
+      <log level="custom">
+        <property name="mark" value="********** START IN SEQUENCE **********"/>
+      </log>
       <log level="full"/>
       <log level="custom">
         <property name="resource_inSequence" value="POST, /tasks"/>
       </log>
+      <log level="custom">
+        <property name="mark" value="********** STOP IN SEQUENCE **********"/>
+      </log>
+      <send>
+        <endpoint>
+          <http method="post" trace="disable" uri-template="http://localhost:8080/mock-task-api/xml/tasks"/>
+        </endpoint>
+      </send>
     </inSequence>
-    <outSequence/>
-    <faultSequence/>
+    <outSequence>
+      <log level="custom">
+        <property name="mark" value="********** START OUT SEQUENCE **********"/>
+      </log>
+      <log level="full"/>
+      <log level="custom">
+        <property name="mark" value="********** END OUT SEQUENCE **********"/>
+      </log>
+      <send/>
+    </outSequence>
+    <faultSequence>
+      <log level="custom">
+        <property name="mark" value="********** START FAULT SEQUENCE **********"/>
+      </log>
+      <log level="custom">
+        <property expression="get-property('ERROR_CODE')" name="errorCode"/>
+        <property expression="get-property('ERROR_MESSAGE')" name="errorMessage"/>
+        <property expression="get-property('ERROR_DETAIL')" name="errorDetail"/>
+      </log>
+      <log level="custom">
+        <property name="mark" value="********** END FAULT SEQUENCE **********"/>
+      </log>
+    </faultSequence>
   </resource>
 </api>
