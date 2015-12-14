@@ -26,14 +26,31 @@
         <property expression="get-property('uri.var.parentId')" name="parentId"/>
         <property expression="get-property('uri.var.campaignId')" name="campaignId"/>
       </log>
+      <filter regex="false" source="boolean(get-property('uri.var.status') or get-property('uri.var.projectId') or get-property('uri.var.parentId') or get-property('uri.var.campaignId'))">
+        <then>
+          <log description="" level="custom">
+            <property name="filter_inSequence" value="then_filter"/>
+          </log>
+          <send>
+            <endpoint>
+              <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/xml/tasks"/>
+            </endpoint>
+          </send>
+        </then>
+        <else>
+          <log description="" level="custom">
+            <property name="filter_inSequence" value="else_filter"/>
+          </log>
+          <send>
+            <endpoint>
+              <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/xml/tasks?filter[status]={uri.var.status}&amp;filter[projectId]={uri.var.projectId}&amp;filter[parentId]={uri.var.parentId}&amp;filter[campaignId]={uri.var.campaignId}"/>
+            </endpoint>
+          </send>
+        </else>
+      </filter>
       <log level="custom">
         <property name="mark" value="********** END IN SEQUENCE **********"/>
       </log>
-      <send>
-        <endpoint>
-          <http method="get" trace="disable" uri-template="http://localhost:8080/mock-task-api/xml/tasks?filter[status]={uri.var.status}&amp;filter[projectId]={uri.var.projectId}&amp;filter[parentId]={uri.var.parentId}&amp;filter[campaignId]={uri.var.campaignId}"/>
-        </endpoint>
-      </send>
     </inSequence>
     <outSequence>
       <log level="custom">
