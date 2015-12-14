@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="_resource_mismatch_handler_" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+  <payloadFactory media-type="json">
+    <format>
+{
+  "errors": {
+    "code": 404,
+    "resource": "$1"
+  }
+}
+    </format>
+    <args>
+      <arg evaluator="xml" expression="$axis2:REST_URL_POSTFIX"/>
+    </args>
+  </payloadFactory>
+  <property action="remove" name="NO_ENTITY_BODY" scope="axis2"/>
+  <property name="HTTP_SC" scope="axis2" type="STRING" value="404"/>
+  <respond/>
+</sequence>

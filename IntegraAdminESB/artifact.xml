@@ -8,4 +8,7 @@
     <artifact name="TaskServiceAPI" groupId="com.energy.IntegraAdminESB.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
         <file>src/main/synapse-config/api/TaskServiceAPI.xml</file>
     </artifact>
+    <artifact name="_resource_mismatch_handler_" groupId="com.energy.IntegraAdminESB.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/_resource_mismatch_handler_.xml</file>
+    </artifact>
 </artifacts>
