@@ -68,6 +68,8 @@
       <log level="custom">
         <property name="resource_inSequence" value="POST, /tasks"/>
       </log>
+      <property name="FORCE_POST_PUT_NOBODY" scope="axis2"
+        type="BOOLEAN" value="true"/>
       <log level="custom">
         <property name="mark" value="********** STOP IN SEQUENCE **********"/>
       </log>
